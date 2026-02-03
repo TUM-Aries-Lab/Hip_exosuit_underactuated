@@ -1,0 +1,60 @@
+%% Bench Experiments
+
+close all; clear; clc; warning off;
+
+% Set the font size and line width
+fontsize = 12;
+linewidth = 1.2;
+axeslinewidth = 0.5;
+axestickfontsize = 12;
+
+% Set the default font to LaTeX
+set(groot, 'defaultAxesTickLabelInterpreter','latex');
+set(groot, 'defaulttextinterpreter','latex');
+set(groot, 'defaultLegendInterpreter','latex');
+set(groot, 'defaultAxesFontSize', fontsize);
+set(groot, 'defaultAxesLineWidth', axeslinewidth);
+
+vel = {'3', '3.5', '4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '9'};
+
+data = struct();
+
+for i = 1:length(vel)
+    names = ['v', strrep(vel{i}, '.', '_')];
+    data.(names) = load([vel{i}, 'kmh.mat']).out;      
+
+    fig = figure('Name', [vel{i} ' km/h'], 'NumberTitle', 'off');    
+    
+    tlo = tiledlayout(3, 1, 'TileSpacing', 'compact', 'Padding', 'compact');
+    title(tlo, [vel{i}, ' km/h ground level walking'], 'FontSize', fontsize + 2, 'Interpreter', 'latex');
+    
+    nexttile;
+    plot(data.(names).tout, data.(names).FlexionExtensionData(:,5),'b','LineWidth', linewidth); % Gait phase
+    legend({'Gait phase'}, 'Location', 'northeast');
+    xlim([40,100]);
+
+    % nexttile;
+    % hold on;
+    % plot(data.(names).tout, data.(names).FlexionExtensionData(:,6)*(360/(2*pi)),'b','LineWidth', linewidth); % Main motor reference
+    % plot(data.(names).tout, data.(names).FlexionExtensionData(:,7)/((8192*6)/(2*pi))*(360/(2*pi)),'r','LineWidth', linewidth); % Main motor position
+    % legend({'Reference', 'Position'}, 'Location', 'northeast');
+    % xlim([40,100]);
+
+    nexttile;
+    hold on;
+    plot(data.(names).tout, data.(names).FlexionExtensionData(:,11)/8192*360,'b','LineWidth', linewidth); % Secondary motor reference
+    plot(data.(names).tout, data.(names).FlexionExtensionData(:,12)/8192*360,'r','LineWidth', linewidth); % Secondary motor position
+    % plot(data.(names).tout, ones(1,length(data.(names).tout))*10000, 'k-', data.(names).tout, ones(1,length(data.(names).tout))*(-10000), 'k-','LineWidth', linewidth) % Gear engagement
+    legend({'Reference', 'Position'}, 'Location', 'northeast');
+    xlim([40,100]);
+
+    nexttile;
+    hold on;
+    plot(data.(names).tout, data.(names).FlexionExtensionData(:,5),'b','LineWidth', linewidth); % GP
+    plot(data.(names).tout, data.(names).FlexionExtensionData(:,12)/8192*360/145,'r','LineWidth', linewidth); % Secondary motor position scaled
+    % plot(data.(names).tout, ones(1,length(data.(names).tout))*10000, 'k-', data.(names).tout, ones(1,length(data.(names).tout))*(-10000), 'k-','LineWidth', linewidth) % Gear engagement
+    legend({'Reference', 'Position'}, 'Location', 'northeast');
+    xlim([40,100]);
+
+    set(findall(fig, '-property', 'TickLabelInterpreter'), 'TickLabelInterpreter', 'latex');
+end
